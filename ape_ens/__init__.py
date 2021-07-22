@@ -1,12 +1,9 @@
-try:
-    from importlib.metadata import PackageNotFoundError as _PackageNotFoundError  # type: ignore
-    from importlib.metadata import version as _version  # type: ignore
-except ModuleNotFoundError:
-    from importlib_metadata import PackageNotFoundError as _PackageNotFoundError  # type: ignore
-    from importlib_metadata import version as _version  # type: ignore
+from ape import plugins
+from ape.types import AddressType
 
-try:
-    __version__ = _version(__name__)
-except _PackageNotFoundError:
-    # package is not installed
-    __version__ = "<unknown>"
+from .converters import ENSConversions
+
+
+@plugins.register(plugins.ConversionPlugin)
+def converters():
+    yield AddressType, ENSConversions
