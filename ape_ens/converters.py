@@ -1,11 +1,11 @@
-import os
 from typing import Any, Optional
 
-from ape.api import ConverterAPI
+from ape.api import ConverterAPI, Web3Provider
+from ape.exceptions import ProviderError
+from ape.logging import logger
 from ape.types import AddressType
-from ape.utils import cached_property, notify
-from ens import ENS  # type: ignore
-from web3 import HTTPProvider, Web3  # type: ignore
+from ape.utils import cached_property
+from web3.main import ENS
 
 
 class ENSConversions(ConverterAPI):
@@ -13,16 +13,20 @@ class ENSConversions(ConverterAPI):
 
     @cached_property
     def ens(self) -> Optional[ENS]:
-        key = os.environ.get("WEB3_INFURA_PROJECT_ID") or os.environ.get("WEB3_INFURA_API_KEY")
+        provider = self.networks.active_provider
 
-        if key:  # Infura key
-            web3 = Web3(HTTPProvider(f"https://mainnet.infura.io/v3/{key}"))
-            return web3.ens
+        if not provider:
+            raise ProviderError("Not connected to a provider.")
 
-        # TODO: Add other provider types
-        # TODO: See if we can use `self.networks` somehow instead to connect to Ethereum mainnet
+        if not isinstance(provider, Web3Provider):
+            raise NotImplementedError("Currently, only web3 providers work with this plugin.")
 
-        return None
+        web3 = provider._web3
+
+        if not hasattr(web3, "ens"):
+            raise NotImplementedError("This provider does not implement ENS calls.")
+
+        return web3.ens
 
     def is_convertible(self, value: Any) -> bool:
         if not isinstance(value, str):
@@ -32,7 +36,7 @@ class ENSConversions(ConverterAPI):
             return False
 
         elif not self.ens:
-            notify("WARNING", "Ethereum Mainnet provider not available for ENS address lookups")
+            logger.warning("Ethereum Mainnet provider not available for ENS address lookups")
             return False
 
         else:
