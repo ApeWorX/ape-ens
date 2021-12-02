@@ -1,5 +1,6 @@
 import pytest
-from ape.api import ConfigItem, ProviderAPI, Web3Provider
+from ape.api import ProviderAPI, Web3Provider
+from ape.api.config import ConfigItem
 from ape.exceptions import ProviderError
 from ape.managers.networks import NetworkManager
 

@@ -8,7 +8,6 @@ extras_require = {
         "pytest-xdist",  # multi-process runner
         "pytest-cov",  # Coverage analyzer plugin
         "pytest-mock",  # For creating mocks
-        "hypothesis>=6.2.0,<7.0",  # Strategy-based fuzzer
     ],
     "lint": [
         "black>=21.10b0,<22.0",  # auto-formatter and linter
