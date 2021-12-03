@@ -4,7 +4,7 @@ Ape plugin for ENS argument conversion and contracts
 
 ## Dependencies
 
-* [python3](https://www.python.org/downloads) version 3.6 or greater, python3-dev
+* [python3](https://www.python.org/downloads) version 3.7 or greater, python3-dev
 
 ## Installation
 
@@ -28,7 +28,19 @@ python3 setup.py install
 
 ## Quick Usage
 
-TODO: Describe library overview in code
+First, start the ape console using the network of your choice:
+
+```bash
+ape console --network :mainnet:infura
+```
+
+Then, convert an `ens` domain to an `AddressType`:
+
+```python
+In [1]: from ape.types import AddressType
+In [2]: convert("vitalik.eth", AddressType)
+Out[2]: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
+```
 
 ## Development
 
