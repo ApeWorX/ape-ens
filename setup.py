@@ -60,7 +60,7 @@ setup(
     url="https://github.com/ApeWorX/ape-ens",
     include_package_data=True,
     install_requires=[
-        "eth-ape>=0.1.0a29",
+        "eth-ape>=0.1.0b2",
         "web3>=5.25,<6.0",
         "importlib-metadata ; python_version<'3.8'",
     ],  # NOTE: Add 3rd party libraries here
@@ -73,7 +73,7 @@ setup(
     packages=find_packages(exclude=["tests", "tests.*"]),
     package_data={"ape_ens": ["py.typed"]},
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: Apache Software License",
         "Natural Language :: English",
