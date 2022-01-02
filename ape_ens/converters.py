@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 from ape.api import ConverterAPI, Web3Provider
 from ape.exceptions import ProviderError
@@ -12,7 +12,7 @@ class ENSConversions(ConverterAPI):
     """Converts ENS names like `my-name.eth` to `0xAbCd...1234`"""
 
     @cached_property
-    def ens(self) -> Optional[ENS]:
+    def ens(self) -> ENS:
         provider = self.networks.active_provider
 
         if not provider:
@@ -43,5 +43,4 @@ class ENSConversions(ConverterAPI):
             return self.ens.address(value) is not None
 
     def convert(self, value: str) -> AddressType:
-        assert self.ens  # NOTE: Just to make mypy happy
         return self.ens.address(value)
