@@ -17,6 +17,12 @@ def mock_config(mocker):
     return mocker.MagicMock(spec=ConfigItem)
 
 
+@pytest.fixture
+def converter(mocker, mock_networks, mock_config):
+    mock_networks.active_provider = mocker.MagicMock(spec=Web3Provider)
+    return ENSConversions(config=mock_config, networks=mock_networks)
+
+
 def test_ens_when_no_provider(mock_config, mock_networks):
     mock_networks.active_provider = None
 
@@ -35,8 +41,7 @@ def test_ens_when_not_web3_provider(mocker, mock_config, mock_networks):
     assert str(err.value) == "Currently, only web3 providers work with this plugin."
 
 
-def test_is_convertible(mocker, mock_config, mock_networks):
-    mock_networks.active_provider = mocker.MagicMock(spec=Web3Provider)
-    converter = ENSConversions(config=mock_config, networks=mock_networks)
+def test_is_convertible(converter):
     assert converter.is_convertible("test.eth")
     assert not converter.is_convertible(23452345)
+    assert not converter.is_convertible("0xe1122aa5533228143C4Ce8fC4642aa33b857B332")
