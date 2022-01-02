@@ -43,5 +43,9 @@ def test_ens_when_not_web3_provider(mocker, mock_config, mock_networks):
 
 def test_is_convertible(converter):
     assert converter.is_convertible("test.eth")
-    assert not converter.is_convertible(23452345)
+
+
+def test_is_not_convertible(converter):
+    assert not converter.is_convertible("test")
     assert not converter.is_convertible("0xe1122aa5533228143C4Ce8fC4642aa33b857B332")
+    assert not converter.is_convertible(23452345)
