@@ -2,6 +2,7 @@ import pytest
 from ape.api import ProviderAPI, Web3Provider
 from ape.api.config import ConfigItem
 from ape.exceptions import ProviderError
+from ape.managers.converters import ConversionManager
 from ape.managers.networks import NetworkManager
 
 from ape_ens.converters import ENSConversions
@@ -18,25 +19,30 @@ def mock_config(mocker):
 
 
 @pytest.fixture
-def converter(mocker, mock_networks, mock_config):
+def mock_converter(mocker):
+    return mocker.MagicMock(spec=ConversionManager)
+
+
+@pytest.fixture
+def converter(mocker, mock_networks, mock_config, mock_converter):
     mock_networks.active_provider = mocker.MagicMock(spec=Web3Provider)
-    return ENSConversions(config=mock_config, networks=mock_networks)
+    return ENSConversions(config=mock_config, networks=mock_networks, converter=mock_converter)
 
 
-def test_ens_when_no_provider(mock_config, mock_networks):
+def test_ens_when_no_provider(mock_config, mock_networks, mock_converter):
     mock_networks.active_provider = None
 
     with pytest.raises(ProviderError) as err:
-        _ = ENSConversions(config=mock_config, networks=mock_networks).ens
+        _ = ENSConversions(config=mock_config, networks=mock_networks, converter=mock_converter).ens
 
     assert str(err.value) == "Not connected to a provider."
 
 
-def test_ens_when_not_web3_provider(mocker, mock_config, mock_networks):
+def test_ens_when_not_web3_provider(mocker, mock_config, mock_networks, mock_converter):
     mock_networks.active_provider = mocker.MagicMock(spec=ProviderAPI)
 
     with pytest.raises(NotImplementedError) as err:
-        _ = ENSConversions(config=mock_config, networks=mock_networks).ens
+        _ = ENSConversions(config=mock_config, networks=mock_networks, converter=mock_converter).ens
 
     assert str(err.value) == "Currently, only web3 providers work with this plugin."
 

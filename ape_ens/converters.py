@@ -32,6 +32,9 @@ class ENSConversions(ConverterAPI):
         if not isinstance(value, str):
             return False
 
+        elif "." not in value:
+            return False
+
         elif not ENS.is_valid_name(value):
             return False
 
