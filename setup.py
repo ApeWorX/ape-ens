@@ -60,8 +60,8 @@ setup(
     url="https://github.com/ApeWorX/ape-ens",
     include_package_data=True,
     install_requires=[
-        "eth-ape>=0.1.0b3",
-        "web3>=5.25,<6.0",
+        "eth-ape>=0.1.0b5",
+        "idna>=3.3,<4.0",
         "importlib-metadata ; python_version<'3.8'",
     ],  # NOTE: Add 3rd party libraries here
     python_requires=">=3.7,<4",
@@ -71,7 +71,7 @@ setup(
     zip_safe=False,
     keywords="ethereum",
     packages=find_packages(exclude=["tests", "tests.*"]),
-    package_data={"ape_ens": ["py.typed"]},
+    package_data={"ape_ens": ["py.typed", "ens-manifest.json"]},
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
