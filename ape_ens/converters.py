@@ -1,32 +1,14 @@
+from contextlib import contextmanager
 from typing import Any
 
 from ape.api import ConverterAPI, Web3Provider
-from ape.exceptions import ProviderError
-from ape.logging import logger
+from ape.exceptions import NetworkError
 from ape.types import AddressType
-from ape.utils import cached_property
 from web3.main import ENS
 
 
 class ENSConversions(ConverterAPI):
     """Converts ENS names like `my-name.eth` to `0xAbCd...1234`"""
-
-    @cached_property
-    def ens(self) -> ENS:
-        provider = self.networks.active_provider
-
-        if not provider:
-            raise ProviderError("Not connected to a provider.")
-
-        if not isinstance(provider, Web3Provider):
-            raise NotImplementedError("Currently, only web3 providers work with this plugin.")
-
-        web3 = provider._web3
-
-        if not hasattr(web3, "ens"):
-            raise NotImplementedError("This provider does not implement ENS calls.")
-
-        return web3.ens
 
     def is_convertible(self, value: Any) -> bool:
         if not isinstance(value, str):
@@ -38,12 +20,34 @@ class ENSConversions(ConverterAPI):
         elif not ENS.is_valid_name(value):
             return False
 
-        elif not self.ens:
-            logger.warning("Ethereum Mainnet provider not available for ENS address lookups")
-            return False
-
         else:
-            return self.ens.address(value) is not None
+            try:
+                with self._connect_to_ens() as ens:
+                    return ens.address(value) is not None
+            except NetworkError:
+                return False
 
     def convert(self, value: str) -> AddressType:
-        return self.ens.address(value)
+        with self._connect_to_ens() as ens:
+            return ens.address(value)
+
+    @contextmanager
+    def _connect_to_ens(self):
+        def _get_ens_from_provider(provider_):
+            if not isinstance(provider_, Web3Provider):
+                raise NotImplementedError("Currently, only web3 providers work with this plugin.")
+
+            web3 = provider_._web3
+
+            if not hasattr(web3, "ens"):
+                raise NotImplementedError("This provider does not implement ENS calls.")
+
+            return web3.ens
+
+        provider = self.networks.active_provider
+        if provider and provider.network.name == "mainnet":
+            yield _get_ens_from_provider(provider)
+
+        else:
+            with self.networks.parse_network_choice("ethereum:mainnet") as provider:
+                yield _get_ens_from_provider(provider)
