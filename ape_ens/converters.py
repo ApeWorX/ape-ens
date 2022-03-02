@@ -44,10 +44,10 @@ class ENSConversions(ConverterAPI):
 
             return web3.ens
 
-        provider = self.networks.active_provider
+        provider = self.network_manager.active_provider
         if provider and provider.network.name == "mainnet":
             yield _get_ens_from_provider(provider)
 
         else:
-            with self.networks.parse_network_choice("ethereum:mainnet") as provider:
+            with self.network_manager.parse_network_choice("ethereum:mainnet") as provider:
                 yield _get_ens_from_provider(provider)
