@@ -1,7 +1,7 @@
 from ape import plugins
 from ape.types import AddressType
 
-from .converters import ENSConversions
+from .converter import ENSConversions
 
 
 @plugins.register(plugins.ConversionPlugin)

@@ -1,25 +1,37 @@
+from functools import partial
+from pathlib import Path
+
 import pytest
-from ape.api import NetworkAPI, Web3Provider
-from ape.managers.networks import NetworkManager
+from ape.api import Web3Provider
 
-from ape_ens.converters import ENSConversions
-
-
-@pytest.fixture
-def mock_networks(mocker):
-    networks = mocker.MagicMock(spec=NetworkManager)
-    mock_network = mocker.MagicMock(spec=NetworkAPI)
-    mock_network.name = "mainnet"
-    networks.active_provider = mocker.MagicMock(spec=Web3Provider)
-    networks.active_provider.network = mock_network
-    return networks
+from ape_ens.converter import ENSConversions
 
 
 @pytest.fixture
-def converter(mocker, mock_networks):
-    return ENSConversions(
-        config=mocker.MagicMock(), networks=mock_networks, converter=mocker.MagicMock()
-    )
+def provider_class(mocker):
+    class MockMainnetProvider(Web3Provider):
+        name = "mock"
+        provider_settings = {}
+        data_folder = Path(".")
+        request_header = {}
+
+        def connect(self):
+            self._web3 = mocker.MagicMock()
+
+        def disconnect(self):
+            self._web3 = None  # type: ignore
+
+    return MockMainnetProvider
+
+
+@pytest.fixture
+def converter(provider_class):
+    ens = ENSConversions()
+    mainnet = ens.network_manager.ethereum.mainnet
+    provider = partial(provider_class, network=mainnet)
+    mainnet.providers["mock"] = provider
+    mainnet.set_default_provider("mock")
+    return ens
 
 
 def test_is_convertible(converter):
