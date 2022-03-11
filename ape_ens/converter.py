@@ -2,7 +2,7 @@ from contextlib import contextmanager
 from typing import Any
 
 from ape.api import ConverterAPI, Web3Provider
-from ape.exceptions import NetworkError
+from ape.exceptions import NetworkError, ProviderError
 from ape.types import AddressType
 from web3.main import ENS
 
@@ -24,7 +24,7 @@ class ENSConversions(ConverterAPI):
             try:
                 with self._connect_to_ens() as ens:
                     return ens.address(value) is not None
-            except NetworkError:
+            except (NetworkError, ProviderError):
                 return False
 
     def convert(self, value: str) -> AddressType:
