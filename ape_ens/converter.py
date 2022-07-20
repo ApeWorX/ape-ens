@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import Any
+from typing import Any, Dict
 
 from ape.api import ConverterAPI, Web3Provider
 from ape.exceptions import NetworkError, ProviderError
@@ -9,6 +9,8 @@ from web3.main import ENS
 
 class ENSConversions(ConverterAPI):
     """Converts ENS names like `my-name.eth` to `0xAbCd...1234`"""
+
+    resolver_cache: Dict[str, AddressType] = {}
 
     def is_convertible(self, value: Any) -> bool:
         if not isinstance(value, str):
@@ -20,6 +22,9 @@ class ENSConversions(ConverterAPI):
         elif not ENS.is_valid_name(value):
             return False
 
+        elif value in self.resolver_cache:
+            return True
+
         else:
             try:
                 with self._connect_to_ens() as ens:
@@ -28,8 +33,13 @@ class ENSConversions(ConverterAPI):
                 return False
 
     def convert(self, value: str) -> AddressType:
+        if value in self.resolver_cache:
+            return self.resolver_cache[value]
+
         with self._connect_to_ens() as ens:
-            return ens.address(value)
+            address = ens.address(value)
+            self.resolver_cache[value] = address
+            return address
 
     @contextmanager
     def _connect_to_ens(self):
