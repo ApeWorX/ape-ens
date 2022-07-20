@@ -3,8 +3,8 @@ from typing import Any, Dict
 from ape.api import ConverterAPI, Web3Provider
 from ape.exceptions import NetworkError, ProviderError
 from ape.types import AddressType
-from web3.main import ENS
 from ape.utils import cached_property
+from web3.main import ENS
 
 
 class ENSConversions(ConverterAPI):
@@ -21,6 +21,10 @@ class ENSConversions(ConverterAPI):
             or not provider.network.name == "mainnet"
         ):
             provider = self.network_manager.get_provider_from_choice("ethereum:mainnet")
+
+            if not isinstance(provider, Web3Provider):
+                raise ValueError("Must use a Web3Provider for default mainnet provider.")
+
             provider.connect()
 
         return provider
