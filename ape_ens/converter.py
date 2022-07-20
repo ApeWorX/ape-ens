@@ -15,12 +15,13 @@ class ENSConversions(ConverterAPI):
     @cached_property
     def mainnet_provider(self) -> Web3Provider:
         provider = self.network_manager.active_provider
-        if not provider:
+        if (
+            not provider
+            or not isinstance(provider, Web3Provider)
+            or not provider.network.name == "mainnet"
+        ):
             provider = self.network_manager.get_provider_from_choice("ethereum:mainnet")
             provider.connect()
-
-        if not isinstance(provider, Web3Provider):
-            raise NotImplementedError("Currently, only web3 providers work with this plugin.")
 
         return provider
 
