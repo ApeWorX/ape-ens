@@ -10,7 +10,7 @@ from web3.main import ENS
 class ENSConversions(ConverterAPI):
     """Converts ENS names like `my-name.eth` to `0xAbCd...1234`"""
 
-    resolver_cache: Dict[str, AddressType] = {}
+    address_cache: Dict[str, AddressType] = {}
 
     def is_convertible(self, value: Any) -> bool:
         if not isinstance(value, str):
@@ -22,7 +22,7 @@ class ENSConversions(ConverterAPI):
         elif not ENS.is_valid_name(value):
             return False
 
-        elif value in self.resolver_cache:
+        elif value in self.address_cache:
             return True
 
         else:
@@ -33,12 +33,12 @@ class ENSConversions(ConverterAPI):
                 return False
 
     def convert(self, value: str) -> AddressType:
-        if value in self.resolver_cache:
-            return self.resolver_cache[value]
+        if value in self.address_cache:
+            return self.address_cache[value]
 
         with self._connect_to_ens() as ens:
             address = ens.address(value)
-            self.resolver_cache[value] = address
+            self.address_cache[value] = address
             return address
 
     @contextmanager

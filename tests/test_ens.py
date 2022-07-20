@@ -45,11 +45,7 @@ def test_is_not_convertible(converter):
     assert not converter.is_convertible(23452345)
 
 
-def test_resolver_cache(converter):
-    expected = converter.convert("test.eth")
-    actual = converter.resolver_cache["test.eth"]
-    assert actual == expected
-
+def test_address_cache(converter):
     new_address: AddressType = "0xe2222bb6633228143C4Ce8fC4642aa33b857B332"  # type: ignore
-    converter.resolver_cache["test.eth"] = new_address
+    converter.address_cache["test.eth"] = new_address
     assert converter.convert("test.eth") == new_address
