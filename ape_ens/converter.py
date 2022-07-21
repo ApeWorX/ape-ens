@@ -1,7 +1,8 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from ape.api import ConverterAPI, Web3Provider
 from ape.exceptions import NetworkError, ProviderError
+from ape.logging import logger
 from ape.types import AddressType
 from ape.utils import cached_property
 from web3.main import ENS
@@ -13,7 +14,7 @@ class ENSConversions(ConverterAPI):
     address_cache: Dict[str, AddressType] = {}
 
     @cached_property
-    def mainnet_provider(self) -> Web3Provider:
+    def mainnet_provider(self) -> Optional[Web3Provider]:
         provider = self.network_manager.active_provider
         if (
             not provider
@@ -23,9 +24,14 @@ class ENSConversions(ConverterAPI):
             provider = self.network_manager.get_provider_from_choice("ethereum:mainnet")
 
             if not isinstance(provider, Web3Provider):
-                raise ValueError("Must use a Web3Provider for default mainnet provider.")
+                logger.warning("Unable to connect to mainnet provider to perform ENS lookup (must be a Web3Provider)")
+                return None
 
-            provider.connect()
+            try:
+                provider.connect()
+            except ProviderError:
+                logger.warning("Unable to connect to mainnet provider to perform ENS lookup")
+                return None
 
         return provider
 
@@ -44,7 +50,11 @@ class ENSConversions(ConverterAPI):
 
         else:
             try:
-                address = self.mainnet_provider.web3.ens.address(value)
+                provider = self.mainnet_provider
+                if not provider:
+                    return False
+
+                address = provider.web3.ens.address(value)
 
                 if address is not None:
                     self.address_cache[value] = address
@@ -58,6 +68,12 @@ class ENSConversions(ConverterAPI):
         if value in self.address_cache:
             return self.address_cache[value]
 
-        address = self.mainnet_provider.web3.ens.address(value)
+        provider = self.mainnet_provider
+        if not provider:
+            # Should never get here.
+            raise ValueError(f"Unable to convert ENS value '{value}'.")
+
+        # TODO: Switch to using ENS SDK
+        address = provider.web3.ens.address(value)
         self.address_cache[value] = address
         return address
