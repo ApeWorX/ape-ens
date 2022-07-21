@@ -24,13 +24,19 @@ class ENSConversions(ConverterAPI):
             provider = self.network_manager.get_provider_from_choice("ethereum:mainnet")
 
             if not isinstance(provider, Web3Provider):
-                logger.warning("Unable to connect to mainnet provider to perform ENS lookup (must be a Web3Provider)")
+                logger.warning(
+                    "Unable to connect to mainnet provider to "
+                    "perform ENS lookup (must be a Web3Provider)"
+                )
                 return None
 
             try:
                 provider.connect()
             except ProviderError:
-                logger.warning("Unable to connect to mainnet provider to perform ENS lookup")
+                logger.warning(
+                    "Unable to connect to mainnet provider to perform ENS lookup. "
+                    "Try changing your default mainnet provider."
+                )
                 return None
 
         return provider
