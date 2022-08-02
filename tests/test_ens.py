@@ -39,10 +39,17 @@ def test_is_convertible(converter):
     assert converter.is_convertible("test.eth")
 
 
-def test_is_not_convertible(converter):
-    assert not converter.is_convertible("test")
-    assert not converter.is_convertible("0xe1122aa5533228143C4Ce8fC4642aa33b857B332")
-    assert not converter.is_convertible(23452345)
+@pytest.mark.parametrize(
+    "value",
+    (
+        "test",
+        "0xe1122aa5533228143C4Ce8fC4642aa33b857B332",
+        23452345,
+        "0x07D75c30f0217c99BD0bbeA00806E9d5D7E8EFA33b5852694A5bAf3D8141d432",
+    ),
+)
+def test_is_not_convertible(converter, value):
+    assert not converter.is_convertible(value)
 
 
 def test_address_cache(converter):
