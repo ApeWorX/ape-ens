@@ -36,7 +36,7 @@ For example, if you use `infura` or `alchemy`, install the associated plugin:
 ape plugins install infura
 ```
 
-Then, configure your default mainnet provider:
+Then, configure your default mainnet provider in ape-config.yaml:
 
 ```yaml
 ethereum:
