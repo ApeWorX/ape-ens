@@ -60,8 +60,8 @@ setup(
     url="https://github.com/ApeWorX/ape-ens",
     include_package_data=True,
     install_requires=[
-        "eth-ape>=0.4.0,<0.5.0",
-        "web3>=5.28.0,<6.0",
+        "eth-ape>=0.4.4,<0.5.0",
+        "web3",  # Use same version as eth-ape
         "importlib-metadata ; python_version<'3.8'",
     ],
     python_requires=">=3.7.2,<4",

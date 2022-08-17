@@ -60,7 +60,11 @@ class ENSConversions(ConverterAPI):
                 if not provider:
                     return False
 
-                address = provider.web3.ens.address(value)
+                ens = provider.web3.ens
+                if not ens:
+                    return False
+
+                address = ens.address(value)
 
                 if address is not None:
                     self.address_cache[value] = address
@@ -80,6 +84,11 @@ class ENSConversions(ConverterAPI):
             raise ValueError(f"Unable to convert ENS value '{value}'.")
 
         # TODO: Switch to using ENS SDK
-        address = provider.web3.ens.address(value)
+        ens = provider.web3.ens
+        if not ens:
+            # Should never get here.
+            raise ValueError(f"Unable to convert ENS value '{value}'.")
+
+        address = ens.address(value)
         self.address_cache[value] = address
         return address
