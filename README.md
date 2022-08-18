@@ -36,7 +36,17 @@ For example, if you use `infura` or `alchemy`, install the associated plugin:
 ape plugins install infura
 ```
 
-Then, configure your default mainnet provider in ape-config.yaml:
+Afterwards, you should see it in the output of the `list` command:
+
+```bash
+$ ape plugins list
+
+Installed Plugins:
+  infura      0.4.0
+  ...
+```
+
+After your provider plugin of choice is installed, configure it to be your default mainnet provider in your `ape-config.yaml` file:
 
 ```yaml
 ethereum:
@@ -44,7 +54,7 @@ ethereum:
     default_provider: infura
 ```
 
-After you have decided on a mainnet provider, you can start the ape console using any network of your choice:
+Finally, you can start the ape console using any network of your choice:
 
 ```bash
 ape console --network :rinkeby:infura
