@@ -28,10 +28,36 @@ python3 setup.py install
 
 ## Quick Usage
 
-First, start the ape console using the network of your choice:
+The ENS plugin requires a mainnet connection to resolve ENS names because ENS contracts are only deployed to mainnet.
+Thus, the first thing you should do is ensure you have configured a mainnet provider.
+For example, if you use `infura` or `alchemy`, install the associated plugin:
 
 ```bash
-ape console --network :mainnet:infura
+ape plugins install infura
+```
+
+Afterwards, you should see it in the output of the `list` command:
+
+```bash
+$ ape plugins list
+
+Installed Plugins:
+  infura      0.4.0
+  ...
+```
+
+After your provider plugin of choice is installed, configure it to be your default mainnet provider in your `ape-config.yaml` file:
+
+```yaml
+ethereum:
+  mainnet:
+    default_provider: infura
+```
+
+Finally, you can start the ape console using any network of your choice:
+
+```bash
+ape console --network :rinkeby:infura
 ```
 
 Then, convert an `ens` domain to an `AddressType`:
@@ -41,6 +67,8 @@ In [1]: from ape.types import AddressType
 In [2]: convert("vitalik.eth", AddressType)
 Out[2]: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
 ```
+
+The ENS plugin temporarily connects to mainnet, caches the address resolution, and then your original network uses the result.
 
 ## Development
 
