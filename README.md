@@ -1,10 +1,10 @@
-# Ape ENS Plugin
+# Quick Start
 
 Ape plugin for ENS argument conversion and contracts
 
 ## Dependencies
 
-* [python3](https://www.python.org/downloads) version 3.7.2 or greater, python3-dev
+* [python3](https://www.python.org/downloads) version 3.8 or greater, python3-dev
 
 ## Installation
 
@@ -69,13 +69,3 @@ Out[2]: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
 ```
 
 The ENS plugin temporarily connects to mainnet, caches the address resolution, and then your original network uses the result.
-
-## Development
-
-This project is in development and should be considered a beta.
-Things might not be in their final state and breaking changes may occur.
-Comments, questions, criticisms and pull requests are welcomed.
-
-## License
-
-This project is licensed under the [Apache 2.0](LICENSE).
