@@ -69,9 +69,3 @@ Out[2]: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
 ```
 
 The ENS plugin temporarily connects to mainnet, caches the address resolution, and then your original network uses the result.
-
-## Development
-
-This project is in development and should be considered a beta.
-Things might not be in their final state and breaking changes may occur.
-Comments, questions, criticisms and pull requests are welcomed.
