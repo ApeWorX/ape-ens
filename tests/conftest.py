@@ -63,14 +63,16 @@ def provider_class(mocker):
 
 
 @pytest.fixture
-def converter(provider_class):
+def converter(address, provider_class):
     ens = ENSConversions()
 
-    def delete_cache():
-        if "mainnet_provider" in converter.__dict__:
-            del converter.__dict__["mainnet_provider"]
+    def delete_caches():
+        if "mainnet_provider" in ens.__dict__:
+            del ens.__dict__["mainnet_provider"]
+        if address in ens.address_cache:
+            del ens.address_cache[address]
 
-    delete_cache()
+    delete_caches()
 
     mainnet = ens.network_manager.ethereum.mainnet
     mainnet_fork = ens.network_manager.ethereum.get_network("mainnet-fork")
@@ -92,4 +94,4 @@ def converter(provider_class):
 
     yield ens
 
-    delete_cache()
+    delete_caches()
