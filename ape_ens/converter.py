@@ -16,7 +16,12 @@ class ENSConversions(ConverterAPI):
     @cached_property
     def mainnet_provider(self) -> Optional[Web3Provider]:
         provider = self.network_manager.active_provider
-        if provider and isinstance(provider, Web3Provider) and provider.network.name == "mainnet":
+        if (
+            provider
+            and isinstance(provider, Web3Provider)
+            and provider.network.name == ("mainnet" or "mainnet-fork")
+            and provider.network.ecosystem.name == "ethereum"
+        ):
             return provider
 
         # Connect to mainnet for ENS resolution
