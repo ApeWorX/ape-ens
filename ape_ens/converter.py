@@ -19,7 +19,7 @@ class ENSConversions(ConverterAPI):
         if (
             provider
             and isinstance(provider, Web3Provider)
-            and provider.network.name == ("mainnet" or "mainnet-fork")
+            and provider.network.name in ("mainnet", "mainnet-fork")
             and provider.network.ecosystem.name == "ethereum"
         ):
             return provider
