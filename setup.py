@@ -8,6 +8,7 @@ extras_require = {
         "pytest-xdist",  # multi-process runner
         "pytest-cov",  # Coverage analyzer plugin
         "pytest-mock",  # For creating mocks
+        "ape-polygon",  # For testing against another network named 'mainnet'
     ],
     "lint": [
         "black>=22.6.0",  # auto-formatter and linter
