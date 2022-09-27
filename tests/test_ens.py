@@ -29,8 +29,7 @@ def test_mainnet_fork(converter, connection_spy):
         converter.convert("test.eth")
 
     # Should not have to reconnect
-    # TODO: Uncomment once #13 is fixed
-    # assert not connection_spy.call_count
+    assert not connection_spy.call_count
 
 
 def test_other_ecosystem_mainnet(converter, connection_spy):
@@ -39,5 +38,4 @@ def test_other_ecosystem_mainnet(converter, connection_spy):
         converter.convert("test.eth")
 
     # It has to re-connect to Ethereum mainnet temporarily
-    # TODO: Uncomment once #13 is fixed
-    # connection_spy.assert_called_once_with("ethereum:mainnet")
+    connection_spy.assert_called_once_with("ethereum:mainnet")
