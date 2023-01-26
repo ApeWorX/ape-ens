@@ -35,6 +35,9 @@ jobs:
         - name: Run flake8
           run: flake8 .
 
+        - name: Run mdformat
+          run: mdformat . --check
+
     type-check:
         runs-on: ubuntu-latest
 
