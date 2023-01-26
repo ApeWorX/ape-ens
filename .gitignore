@@ -118,4 +118,6 @@ dmypy.json
 version.py
 
 **/.DS_Store
-**/.swp
+*.swp
+*.swo
+
