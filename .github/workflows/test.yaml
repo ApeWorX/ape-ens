@@ -29,11 +29,11 @@ jobs:
         - name: Run Black
           run: black --check .
 
-        - name: Run flake8
-          run: flake8 .
-
         - name: Run isort
           run: isort --check-only .
+
+        - name: Run flake8
+          run: flake8 .
 
     type-check:
         runs-on: ubuntu-latest
