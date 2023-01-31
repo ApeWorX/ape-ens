@@ -37,29 +37,41 @@ def from_tests_dir():
         os.chdir(curr_dir)
 
 
+class MockMainnetProvider(Web3Provider, UpstreamProvider):
+    name = "mock"
+    provider_settings = {}
+    data_folder = Path(".")
+    request_header = {}
+
+    @property
+    def connection_str(self) -> str:
+        return "<MOCK>"
+
+    @property
+    def is_connected(self) -> bool:
+        return self._web3 is not None
+
+    def connect(self):
+        assert False, "Should be set externally"
+
+    def disconnect(self):
+        assert False, "Should be set externally"
+
+
 @pytest.fixture
 def provider_class(mocker):
-    class MockMainnetProvider(Web3Provider, UpstreamProvider):
-        name = "mock"
-        provider_settings = {}
-        data_folder = Path(".")
-        request_header = {}
+    cls = MockMainnetProvider
 
-        @property
-        def connection_str(self) -> str:
-            return "<MOCK>"
+    def connect(provider):
+        provider._web3 = mocker.MagicMock()
 
-        @property
-        def is_connected(self) -> bool:
-            return self._web3 is not None
+    def disconnect(provider):
+        provider._web3 = None
 
-        def connect(self):
-            self._web3 = mocker.MagicMock()
+    cls.connect = connect
+    cls.disconnect = disconnect
 
-        def disconnect(self):
-            self._web3 = None  # type: ignore
-
-    return MockMainnetProvider
+    return cls
 
 
 @pytest.fixture
