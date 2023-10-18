@@ -1,8 +1,6 @@
-# from eth_utils import keccak
 import codecs
 import functools
 
-from ape.exceptions import ProviderNotConnectedError
 from ens.utils import raw_name_to_hash
 from eth_utils import keccak
 from hexbytes import HexBytes
@@ -40,7 +38,7 @@ def manual_namehash(name: str, encoding=None) -> HexBytes:
         labels = encoded_name.split(b".")
 
         return HexBytes(
-            compose(*(functools.partial(_sub_hash, label=label) for label in labels))( # noqa: 501
+            compose(*(functools.partial(_sub_hash, label=label) for label in labels))(  # noqa: 501
                 node
             )
         )
@@ -50,5 +48,6 @@ def manual_namehash(name: str, encoding=None) -> HexBytes:
 def namehash(name: str) -> HexBytes:
     try:
         return raw_name_to_hash(name)
-    except ProviderNotConnectedError:
+    # if anything happens in the future fallback to the manual implementation
+    except Exception as e:  # noqa
         return manual_namehash(name)
