@@ -40,9 +40,9 @@ def manual_namehash(name: str, encoding=None) -> HexBytes:
         labels = encoded_name.split(b".")
 
         return HexBytes(
-            compose(*(functools.partial(_sub_hash, label=label) for label in labels))(
+            compose(*(functools.partial(_sub_hash, label=label) for label in labels))( # noqa: 501
                 node
-            )  # noqa: 501
+            )
         )
     return HexBytes(node)
 
