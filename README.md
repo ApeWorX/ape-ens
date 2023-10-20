@@ -83,7 +83,6 @@ HexBytes(
 
 >> namehash("foo.eth").hex()
 "0x6294e43e29c5c1573554a68e6ff302fa867ab0d56b800f623c1abb77609d2b8d"
-
 ```
 
 The ENS plugin temporarily connects to mainnet, caches the address resolution, and then your original network uses the result.
