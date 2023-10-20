@@ -68,7 +68,7 @@ In [2]: convert("vitalik.eth", AddressType)
 Out[2]: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
 ```
 
-Get the `Ethereum Name Service` (ENS) namehash
+Get the Ethereum Name Service (ENS) namehash using the `namehash` function:
 
 ```py
 from ape_ens.utils import namehash
