@@ -1,7 +1,10 @@
 import codecs
 import functools
 
-from ens.utils import raw_name_to_hash  # type: ignore
+try:
+    from ens.utils import raw_name_to_hash  # type: ignore
+except ImportError:
+    raw_name_to_hash = None
 from eth_utils import keccak
 from hexbytes import HexBytes
 
@@ -46,8 +49,5 @@ def manual_namehash(name: str, encoding=None) -> HexBytes:
 
 
 def namehash(name: str) -> HexBytes:
-    try:
-        return raw_name_to_hash(name)
-    # if anything happens in the future fallback to the manual implementation
-    except Exception as e:  # noqa
-        return manual_namehash(name)
+    namehash_func = raw_name_to_hash if raw_name_to_hash else manual_namehash
+    return namehash_func(name)

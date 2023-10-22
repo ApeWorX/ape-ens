@@ -80,7 +80,7 @@ from ape_ens.utils import namehash
 >> namehash("foo.eth")
 HexBytes("0xde9b09fd7c5f901e23a3f19fecc54828e9c848539801e86591bd9801b019f84f")
 
->> namehash("foo.eth").hex()
+>> namehash("ape.rocks.eth").hex()
 "0x6294e43e29c5c1573554a68e6ff302fa867ab0d56b800f623c1abb77609d2b8d"
 ```
 
