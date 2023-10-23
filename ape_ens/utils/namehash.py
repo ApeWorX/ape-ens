@@ -1,12 +1,13 @@
 import codecs
 import functools
 
+from eth_utils import keccak
+from hexbytes import HexBytes
+
 try:
     from ens.utils import raw_name_to_hash  # type: ignore
 except ImportError:
     raw_name_to_hash = None
-from eth_utils import keccak
-from hexbytes import HexBytes
 
 # https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#namehash-algorithm
 
