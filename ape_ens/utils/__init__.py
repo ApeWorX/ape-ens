@@ -1,3 +1,3 @@
-from .namehash import manual_namehash, namehash
+from .namehash import namehash
 
-__all__ = ["namehash", "manual_namehash"]
+__all__ = ["namehash"]
