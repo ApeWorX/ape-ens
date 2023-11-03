@@ -1,7 +1,7 @@
 import os
 from functools import partial
 from pathlib import Path
-from typing import cast
+from typing import Dict, cast
 
 import pytest
 from ape.api import UpstreamProvider, Web3Provider
@@ -39,7 +39,7 @@ def from_tests_dir():
 
 class MockMainnetProvider(Web3Provider, UpstreamProvider):
     name = "mock"
-    provider_settings = {}
+    provider_settings: Dict = {}
     data_folder = Path(".")
     request_header = {}
 
