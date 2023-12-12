@@ -11,7 +11,7 @@ extras_require = {
         "ape-polygon",  # For testing against another network named 'mainnet'
     ],
     "lint": [
-        "black>=23.11.0,<24",  # Auto-formatter and linter
+        "black>=23.12.0,<24",  # Auto-formatter and linter
         "mypy>=1.7.1,<2",  # Static type analyzer
         "types-setuptools",  # Needed for mypy type shed
         "flake8>=6.1.0,<7",  # Style linter
