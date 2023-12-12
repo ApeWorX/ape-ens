@@ -5,16 +5,18 @@ from setuptools import find_packages, setup
 extras_require = {
     "test": [  # `test` GitHub Action jobs uses this
         "pytest>=6.0",  # Core testing package
-        "pytest-xdist",  # multi-process runner
+        "pytest-xdist",  # Multi-process runner
         "pytest-cov",  # Coverage analyzer plugin
         "pytest-mock",  # For creating mocks
         "ape-polygon",  # For testing against another network named 'mainnet'
     ],
     "lint": [
         "black>=23.11.0,<24",  # Auto-formatter and linter
-        "mypy>=1.7.0,<2",  # Static type analyzer
+        "mypy>=1.7.1,<2",  # Static type analyzer
         "types-setuptools",  # Needed for mypy type shed
         "flake8>=6.1.0,<7",  # Style linter
+        "flake8-breakpoint>=1.1.0,<2",  # Detect breakpoints left in code
+        "flake8-print>=5.0.0,<6",  # Detect print statements left in code
         "isort>=5.10.1,<6",  # Import sorting linter
         "mdformat>=0.7.17",  # Auto-formatter for markdown
         "mdformat-gfm>=0.3.5",  # Needed for formatting GitHub-flavored markdown
@@ -22,8 +24,8 @@ extras_require = {
         "mdformat-pyproject>=0.0.1",  # Allows configuring in pyproject.toml
     ],
     "doc": [
-        "Sphinx>=3.4.3,<4",  # Documentation generator
-        "sphinx_rtd_theme>=0.1.9,<1",  # Readthedocs.org theme
+        "Sphinx>=6.1.3,<7",  # Documentation generator
+        "sphinx_rtd_theme>=1.2.0,<2",  # Readthedocs.org theme
         "towncrier>=19.2.0, <20",  # Generate release notes
     ],
     "release": [  # `release` GitHub Action job uses this

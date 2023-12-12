@@ -4,8 +4,9 @@ from pathlib import Path
 from typing import Dict, cast
 
 import pytest
-from ape.api import UpstreamProvider, Web3Provider
+from ape.api import UpstreamProvider
 from ape.types import AddressType
+from ape_ethereum.provider import Web3Provider
 
 from ape_ens.converter import ENSConversions
 
@@ -38,10 +39,10 @@ def from_tests_dir():
 
 
 class MockMainnetProvider(Web3Provider, UpstreamProvider):
-    name = "mock"
+    name: str = "mock"
     provider_settings: Dict = {}
-    data_folder = Path(".")
-    request_header = {}
+    data_folder: Path = Path(".")
+    request_header: Dict = {}
 
     @property
     def connection_str(self) -> str:
