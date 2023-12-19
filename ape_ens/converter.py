@@ -1,10 +1,11 @@
 from typing import Any, Dict, Optional
 
-from ape.api import ConverterAPI, Web3Provider
+from ape.api import ConverterAPI
 from ape.exceptions import NetworkError, ProviderError
 from ape.logging import logger
 from ape.types import AddressType
 from ape.utils import cached_property
+from ape_ethereum.provider import Web3Provider
 from web3.main import ENS
 
 
