@@ -108,3 +108,9 @@ def converter(address, provider_class):
     yield ens
 
     delete_caches()
+
+
+@pytest.fixture
+def mainnet_provider(converter):
+    _ = converter.is_convertible("test.eth")  # Set mainnet_provider
+    return converter.__dict__["mainnet_provider"]
