@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from ape.api import ConverterAPI
 from ape.exceptions import NetworkError, ProviderError
@@ -13,7 +13,7 @@ from web3.main import ENS
 class ENSConversions(ConverterAPI):
     """Converts ENS names like `my-name.eth` to `0xAbCd...1234`"""
 
-    address_cache: Dict[str, AddressType] = {}
+    address_cache: dict[str, AddressType] = {}
 
     @cached_property
     def mainnet_provider(self) -> Optional[Web3Provider]:

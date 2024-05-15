@@ -1,7 +1,7 @@
 import os
 from functools import partial
 from pathlib import Path
-from typing import Dict, cast
+from typing import cast
 
 import pytest
 from ape.api import UpstreamProvider
@@ -40,8 +40,8 @@ def from_tests_dir():
 
 class MockMainnetProvider(Web3Provider, UpstreamProvider):
     name: str = "mock"
-    provider_settings: Dict = {}
-    request_header: Dict = {}
+    provider_settings: dict = {}
+    request_header: dict = {}
 
     @property
     def connection_str(self) -> str:
