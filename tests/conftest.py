@@ -41,7 +41,6 @@ def from_tests_dir():
 class MockMainnetProvider(Web3Provider, UpstreamProvider):
     name: str = "mock"
     provider_settings: Dict = {}
-    data_folder: Path = Path(".")
     request_header: Dict = {}
 
     @property
