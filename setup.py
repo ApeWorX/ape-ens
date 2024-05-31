@@ -68,7 +68,7 @@ setup(
     url="https://github.com/ApeWorX/ape-ens",
     include_package_data=True,
     install_requires=[
-        "eth-ape>=0.7.0,<0.8",
+        "eth-ape>=0.8.1,<0.9",
         "web3",  # Use same version as eth-ape
     ],
     python_requires=">=3.9,<4",
