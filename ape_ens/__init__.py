@@ -17,3 +17,6 @@ def __getattr__(name: str):
         return ENSConversions
 
     raise AttributeError(name)
+
+
+__all__ = ["ENSConversions"]
