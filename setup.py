@@ -69,7 +69,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "eth-ape>=0.8.1,<0.9",
-        "web3",  # Use same version as eth-ape
+        "web3>=6.20.3,<8",
     ],
     python_requires=">=3.9,<4",
     extras_require=extras_require,
