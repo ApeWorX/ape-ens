@@ -7,14 +7,14 @@ from eth_utils import to_hex
 from ape_ens.ens import ENS
 
 
-def create_ens():
+def create_ens() -> ENS:
     # Abstracted for testing purposes.
     return ENS()
 
 
 class ENSContext(ApeCliContextObject):
     @cached_property
-    def ens(self):
+    def ens(self) -> ENS:
         return create_ens()
 
 
