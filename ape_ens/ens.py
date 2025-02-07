@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Optional
 from ape.exceptions import ProviderError
 from ape.logging import logger
 from ape.utils.basemodel import ManagerAccessMixin
-from hexbytes import HexBytes
 from web3.main import ENS as Web3ENS
 
 from ape_ens.utils.namehash import namehash
@@ -12,6 +11,7 @@ from ape_ens.utils.namehash import namehash
 if TYPE_CHECKING:
     from ape.types import AddressType
     from ape_ethereum.provider import Web3Provider
+    from hexbytes import HexBytes
 
 
 # TODO: Use `ape.logging.silenced` in 0.8.26.
@@ -146,7 +146,7 @@ class ENS(ManagerAccessMixin):
         """
         return self._web3_ens.owner(name)
 
-    def namehash(self, name: str) -> HexBytes:
+    def namehash(self, name: str) -> "HexBytes":
         """
         Get the namehash of an ENS name.
 
