@@ -47,6 +47,22 @@ def test_convert_when_connected_to_other_ecosystem_mainnet(trick_network, conver
     assert actual == vitalik
 
 
+def test_convert_using_config_registry(project, converter, vitalik, accounts):
+    dev_account = accounts[0]
+    ape_user = "apeconfig.eth"
+    with project.temp_config(ens={"registry": {ape_user: dev_account.address}}):
+        actual = converter.convert(ape_user)
+        assert actual == dev_account.address
+
+
+def test_convert_after_adding_to_local_registry(converter, vitalik, accounts):
+    dev_account = accounts[0]
+    ape_user = "apepython.eth"
+    converter.ens.local_registry[ape_user] = dev_account.address
+    actual = converter.convert(ape_user)
+    assert actual == dev_account.address
+
+
 def test_address_cache(converter, address):
     converter.address_cache["test.eth"] = address
     assert converter.convert("test.eth") == address

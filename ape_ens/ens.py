@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Optional
 from ape.exceptions import ProviderError
 from ape.logging import logger
 from ape.utils.basemodel import ManagerAccessMixin
+from web3.exceptions import CannotHandleRequest
 from web3.main import ENS as Web3ENS
 
 from ape_ens.utils.namehash import namehash
@@ -12,6 +13,8 @@ if TYPE_CHECKING:
     from ape.types import AddressType
     from ape_ethereum.provider import Web3Provider
     from hexbytes import HexBytes
+
+    from ape_ens.config import ENSConfig
 
 
 # TODO: Use `ape.logging.silenced` in 0.8.26.
@@ -35,6 +38,7 @@ class ENS(ManagerAccessMixin):
 
     def __init__(self, backend: Optional["Web3ENS"] = None) -> None:
         self._ens = backend
+        self.local_registry: dict[str, AddressType] = {}
 
     @classmethod
     def is_valid_name(cls, name: str) -> bool:
@@ -114,17 +118,63 @@ class ENS(ManagerAccessMixin):
 
         return self._mainnet_provider.web3.ens
 
-    def resolve(self, name: str) -> Optional["AddressType"]:
+    @property
+    def config(self) -> "ENSConfig":
+        return self.config_manager.ens
+
+    def can_resolve(self, name: str) -> bool:
+        """
+        Returns ``True`` when ENS can resolve the name.
+
+        Args:
+            name (str): The name to check.
+
+        Returns:
+            bool
+        """
+        if "." not in name or not self.is_valid_name(name):
+            return False
+
+        try:
+            address = self.resolve(name)
+        except CannotHandleRequest:
+            # Either this is not actually mainnet or our head is
+            # pointed before ENS existed.
+            return False
+
+        return address is not None
+
+    def resolve(self, name: str, use_cache: Optional[bool] = None) -> Optional["AddressType"]:
         """
         Resolve an ENS name.
 
         Args:
             name (str): The name to resolve.
+            use_cache (bool): Set to ``False`` to not use the in-memory cache.
 
         Returns:
             AddressType | None
         """
-        return self._web3_ens.address(name)
+        if use_cache is None:
+            # Use default from config.
+            use_cache = self.config.use_cache
+
+        if use_cache:
+            if address := self.local_registry.get(name):
+                return address
+
+            # Check config cache.
+            if address := self.config.registry.get(name):
+                self.local_registry[name] = address
+                return address
+
+        if address := self._web3_ens.address(name):
+            if use_cache:
+                self.local_registry[name] = address
+
+            return address
+
+        return None
 
     def name(self, address: "AddressType") -> Optional[str]:
         """
