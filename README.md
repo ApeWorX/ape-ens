@@ -126,3 +126,42 @@ ens = ENS()
 vitalik = ens.resolve("vitalik.eth")
 print(vitalik)
 ```
+
+### Local registry
+
+**WARNING**: By default, `ape-ens` caches results during each Python session for faster name resolution in scripts and testing.
+Be careful using ENS names in long-running scripts where it would be bad if the name resolved differently in the future.
+To disable caching, configure `ape-ens` to always read from Ethereum by adding to your `pyproject.toml`:
+
+```toml
+[tool.ape.ens]
+use_cache = false
+```
+
+or using `ape-config.yaml`:
+
+```yaml
+ens:
+  use_cache: false
+```
+
+To manually add entries to the cache, you can include them under the `registry:` key in the config:
+
+```toml
+[tool.ape.ens]
+registry = { vitalik.eth = "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045" }
+```
+
+or using `ape-config.yaml`:
+
+```yaml
+ens:
+  registry:
+    vitalik.eth: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+```
+
+Configuring entries is useful for:
+
+1. Testing in the `local` network.
+2. Attaining faster performance (no Ethereum call).
+3. Avoiding connecting to Ethereum mainnet.
