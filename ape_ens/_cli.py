@@ -2,6 +2,7 @@ from functools import cached_property
 
 import click
 from ape.cli import ApeCliContextObject, ape_cli_context, network_option
+from eth_utils import to_hex
 
 from ape_ens.ens import ENS
 
@@ -64,3 +65,16 @@ def owner(cli_ctx, name):
         click.echo(owner_address)
     else:
         click.echo(f"No owner found for '{name}'.", err=True)
+
+
+@cli.command()
+@ape_cli_context(obj_type=ENSContext)
+@click.argument("name")
+@network_option(default=None)
+def namehash(cli_ctx, name):
+    """
+    Get the namehash of an ENS domain.
+    """
+    name_hash = cli_ctx.ens.namehash(name)
+    name_hex = to_hex(name_hash)
+    click.echo(name_hex)

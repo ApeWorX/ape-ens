@@ -79,14 +79,8 @@ Additionally, you can get the Ethereum Name Service (ENS) namehash using the `na
 ```py
 from ape_ens.utils import namehash
 
-namehash("eth").hex()
-# "0x93cdeb708b7545dc668eb9280176169d1c33cfd8ed6f04690a0bcc88a93fc4ae"
-
 namehash("foo.eth")
 # HexBytes("0xde9b09fd7c5f901e23a3f19fecc54828e9c848539801e86591bd9801b019f84f")
-
-namehash("ape.rocks.eth").hex()
-# "0x6294e43e29c5c1573554a68e6ff302fa867ab0d56b800f623c1abb77609d2b8d"
 ```
 
 ### CLI
@@ -112,4 +106,11 @@ Get the owner of an ENS domain:
 ```shell
 ape ens owner vitalik.eth
 # outputs: 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045
+```
+
+Get the namehash of an ENS name:
+
+```shell
+ape ens namehash foo.eth
+# outputs: 0xde9b09fd7c5f901e23a3f19fecc54828e9c848539801e86591bd9801b019f84f
 ```
