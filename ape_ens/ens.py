@@ -57,6 +57,10 @@ class ENS(ManagerAccessMixin):
         Use this helper method across the ape-ens plugin to obtain
         the connected Ethereum provider for interacting with ENS.
         """
+        return self._get_mainnet_provider()
+
+    @silenced
+    def _get_mainnet_provider(self) -> "Web3Provider":
         provider = self.network_manager.active_provider
         if (
             provider
