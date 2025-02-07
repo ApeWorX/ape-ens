@@ -165,3 +165,25 @@ Configuring entries is useful for:
 1. Testing in the `local` network.
 2. Attaining faster performance (no Ethereum call).
 3. Avoiding connecting to Ethereum mainnet.
+
+### Change Registry
+
+Change the registry contract address by configuring it in your `pyproject.toml`:
+
+```toml
+[tool.ape.ens]
+registry_address = "0x123..."
+```
+
+or using `ape-config.yaml`:
+
+```yaml
+ens:
+  registry_address: "0x123..."
+```
+
+You can also switch the registry adhoc during CLI commands:
+
+```shell
+ape ens resolve vitalik.eth --registry-address 0x123...311
+```

@@ -1,4 +1,5 @@
 import pytest
+from ape.exceptions import ConversionError
 from web3.exceptions import CannotHandleRequest
 
 from tests.conftest import negative_tests
@@ -61,6 +62,17 @@ def test_convert_after_adding_to_local_registry(converter, vitalik, accounts):
     converter.ens.local_registry[ape_user] = dev_account.address
     actual = converter.convert(ape_user)
     assert actual == dev_account.address
+
+
+def test_convert_change_registry_address(project, converter, vitalik, accounts):
+    fake_registry = accounts[0].address
+    ens = converter.ens
+    converter._ens = None  # Pretend this is the start of the session.
+    with project.temp_config(ens={"registry_address": fake_registry}):
+        with pytest.raises(ConversionError):
+            _ = converter.convert("apepython.eth")
+
+    converter._ens = ens
 
 
 def test_address_cache(converter, address):

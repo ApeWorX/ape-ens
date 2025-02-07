@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, Any
 
 from ape.api import ConverterAPI
+from ape.exceptions import ConversionError
 
 from ape_ens.ens import ENS
 
@@ -40,7 +41,13 @@ class ENSConversions(ConverterAPI):
         if not isinstance(value, str):
             return False
 
-        return self.ens.can_resolve(value)
+        try:
+            return self.ens.can_resolve(value)
+        except Exception:
+            return False
 
     def convert(self, value: str) -> "AddressType":
-        return self.ens.resolve(value)
+        try:
+            return self.ens.resolve(value)
+        except Exception as err:
+            raise ConversionError(str(err)) from err

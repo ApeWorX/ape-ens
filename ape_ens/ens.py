@@ -4,9 +4,10 @@ from typing import TYPE_CHECKING, Optional
 from ape.exceptions import ProviderError
 from ape.logging import logger
 from ape.utils.basemodel import ManagerAccessMixin
-from web3.exceptions import CannotHandleRequest
+from web3.exceptions import BadFunctionCallOutput, CannotHandleRequest, Web3RPCError
 from web3.main import ENS as Web3ENS
 
+from ape_ens.exceptions import MissingRegistryError
 from ape_ens.utils.namehash import namehash
 
 if TYPE_CHECKING:
@@ -37,7 +38,7 @@ class ENS(ManagerAccessMixin):
     """
 
     def __init__(self, backend: Optional["Web3ENS"] = None) -> None:
-        self._ens = backend
+        self.__initialized_ens = backend
         self.local_registry: dict[str, AddressType] = {}
 
     @classmethod
@@ -112,15 +113,27 @@ class ENS(ManagerAccessMixin):
 
     @cached_property
     def _web3_ens(self) -> "Web3ENS":
-        if ens := self._ens:
+        if ens := self.__initialized_ens:
             # Initialized with ENS (testing?)
             return ens
 
-        return self._mainnet_provider.web3.ens
+        return self._create_web3_ens()
 
     @property
     def config(self) -> "ENSConfig":
         return self.config_manager.ens
+
+    def _create_web3_ens(self, registry_address: Optional["AddressType"] = None) -> "Web3ENS":
+        if registry_address:
+            return Web3ENS.from_web3(self._mainnet_provider.web3, registry_address)
+
+        else:
+            # Check config.
+            if address := self.config.registry_address:
+                return Web3ENS.from_web3(self._mainnet_provider.web3, address)
+
+        # Use default (most common).
+        return self._mainnet_provider.web3.ens
 
     def can_resolve(self, name: str) -> bool:
         """
@@ -144,17 +157,29 @@ class ENS(ManagerAccessMixin):
 
         return address is not None
 
-    def resolve(self, name: str, use_cache: Optional[bool] = None) -> Optional["AddressType"]:
+    def resolve(
+        self,
+        name: str,
+        use_cache: Optional[bool] = None,
+        registry_address: Optional["AddressType"] = None,
+    ) -> Optional["AddressType"]:
         """
         Resolve an ENS name.
 
         Args:
             name (str): The name to resolve.
             use_cache (bool): Set to ``False`` to not use the in-memory cache.
+            registry_address (Optional[AddressType]): Optionally, change the registry
+              address.
 
         Returns:
             AddressType | None
         """
+        ens = (
+            self._create_web3_ens(registry_address=registry_address)
+            if registry_address
+            else self._web3_ens
+        )
         if use_cache is None:
             # Use default from config.
             use_cache = self.config.use_cache
@@ -168,37 +193,55 @@ class ENS(ManagerAccessMixin):
                 self.local_registry[name] = address
                 return address
 
-        if address := self._web3_ens.address(name):
-            if use_cache:
-                self.local_registry[name] = address
+        try:
+            address = ens.address(name)
+        except (Web3RPCError, BadFunctionCallOutput) as err:
+            raise MissingRegistryError(str(err))
 
-            return address
+        if use_cache and address is not None:
+            self.local_registry[name] = address
 
-        return None
+        return address
 
-    def name(self, address: "AddressType") -> Optional[str]:
+    def name(
+        self, address: "AddressType", registry_address: Optional["AddressType"] = None
+    ) -> Optional[str]:
         """
         Reverse look-up an address to get the ENS name.
 
         Args:
             address (AddressType): The address to resolve.
+            registry_address (Optional[AddressType]): Optionally, change the registry.
 
         Returns:
             str | None: The ENS name.
         """
-        return self._web3_ens.name(address)
+        ens = (
+            self._create_web3_ens(registry_address=registry_address)
+            if registry_address
+            else self._web3_ens
+        )
+        return ens.name(address)
 
-    def owner(self, name: str) -> Optional["AddressType"]:
+    def owner(
+        self, name: str, registry_address: Optional["AddressType"] = None
+    ) -> Optional["AddressType"]:
         """
         Get the owner of an ENS domain.
 
         Args:
             name (str): The ENS name to check.
+            registry_address (Optional[AddressType]): Optionally, change the registry.
 
         Returns:
             AddressType | None
         """
-        return self._web3_ens.owner(name)
+        ens = (
+            self._create_web3_ens(registry_address=registry_address)
+            if registry_address
+            else self._web3_ens
+        )
+        return ens.owner(name)
 
     def namehash(self, name: str) -> "HexBytes":
         """
