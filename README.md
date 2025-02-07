@@ -43,7 +43,7 @@ ethereum:
 
 Otherwise, the plugin should still work with Ape's defaults, using an RPC from the `evmchains` library.
 
-This plugin contains two features:
+This plugin contains two primary features:
 
 - A conversion API implementation: this allows you to use ENS values in contract calls and transaction kwargs.
 - a CLI for interacting with ENS from the command line.
@@ -113,4 +113,16 @@ Get the namehash of an ENS name:
 ```shell
 ape ens namehash foo.eth
 # outputs: 0xde9b09fd7c5f901e23a3f19fecc54828e9c848539801e86591bd9801b019f84f
+```
+
+### Using `ape-ens` as a library.
+
+You can also use the `ape_ens.ENS` class directly for programmatically referring to ENS.
+
+```python
+from ape_ens import ENS
+
+ens = ENS()
+vitalik = ens.resolve("vitalik.eth")
+print(vitalik)
 ```
