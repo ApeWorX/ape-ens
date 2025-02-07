@@ -1,6 +1,9 @@
 [build-system]
 requires = ["setuptools>=75.6.0", "wheel", "setuptools_scm[toml]>=5.0"]
 
+[tool.ape.test]
+show_internal = false
+
 [tool.mypy]
 exclude = "build/"
 plugins = ["pydantic.mypy"]
@@ -20,7 +23,8 @@ include = '\.pyi?$'
 
 [tool.pytest.ini_options]
 addopts = """
-    -p no:ape_test
+    -p no:pytest_ethereum
+    -p no:boa_test
     --cov-branch
     --cov-report term
     --cov-report html

@@ -1,14 +1,11 @@
-import os
-from functools import partial
-from pathlib import Path
+from contextlib import contextmanager
 from typing import cast
 
 import pytest
-from ape.api import UpstreamProvider
 from ape.types import AddressType
-from ape_ethereum.provider import Web3Provider
 
 from ape_ens.converter import ENSConversions
+from ape_ens.ens import ENS
 
 ADDRESS = cast(AddressType, "0xe2222bb6633228143C4Ce8fC4642aa33b857B332")
 negative_tests = pytest.mark.parametrize(
@@ -20,96 +17,64 @@ negative_tests = pytest.mark.parametrize(
         "0x07D75c30f0217c99BD0bbeA00806E9d5D7E8EFA33b5852694A5bAf3D8141d432",
     ),
 )
+REGISTRY = {"test.eth": ADDRESS, "vitalik.eth": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"}
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def address():
     return ADDRESS
 
 
-@pytest.fixture(autouse=True, scope="session")
-def from_tests_dir():
-    curr_dir = os.curdir
-    here = Path(__file__).parent
-    os.chdir(here)
-    try:
+@pytest.fixture(scope="session")
+def vitalik():
+    return REGISTRY["vitalik.eth"]
+
+
+@pytest.fixture
+def mock_web3_ens(mocker):
+    web3_ens = mocker.MagicMock()
+
+    def get_address(name):
+        return REGISTRY.get(name)
+
+    def get_name(address):
+        for name, value in REGISTRY.items():
+            if value == address:
+                return name
+
+    web3_ens.address.side_effect = get_address
+    web3_ens.name.side_effect = get_name
+    web3_ens.owner.side_effect = get_address
+    return web3_ens
+
+
+@pytest.fixture
+def ens(mock_web3_ens):
+    return ENS(backend=mock_web3_ens)
+
+
+@pytest.fixture
+def converter(ens):
+    return ENSConversions(ens=ens)
+
+
+@pytest.fixture
+def trick_network(chain):
+    """
+    Helper to avoid having to connect to other networks,
+    as CI/CD may not have plugins or setup required.
+    """
+
+    @contextmanager
+    def fn(name, ecosystem=None):
+        network = chain.provider.network
+        initial_name = network.name
+        initial_ecosystem_name = network.ecosystem.name
+        network.name = name
+        if ecosystem:
+            network.ecosystem.name = ecosystem
         yield
-    finally:
-        os.chdir(curr_dir)
+        network.name = initial_name
+        network.ecosystem.name = initial_ecosystem_name
 
-
-class MockMainnetProvider(Web3Provider, UpstreamProvider):
-    name: str = "mock"
-    provider_settings: dict = {}
-    request_header: dict = {}
-
-    @property
-    def connection_str(self) -> str:
-        return "<MOCK>"
-
-    @property
-    def is_connected(self) -> bool:
-        return self._web3 is not None
-
-    def connect(self):
-        assert False, "Should be set externally"
-
-    def disconnect(self):
-        assert False, "Should be set externally"
-
-
-@pytest.fixture
-def provider_class(mocker):
-    cls = MockMainnetProvider
-
-    def connect(provider):
-        provider._web3 = mocker.MagicMock()
-
-    def disconnect(provider):
-        provider._web3 = None
-
-    cls.connect = connect
-    cls.disconnect = disconnect
-
-    return cls
-
-
-@pytest.fixture
-def converter(address, provider_class):
-    ens = ENSConversions()
-
-    def delete_caches():
-        if "mainnet_provider" in ens.__dict__:
-            del ens.__dict__["mainnet_provider"]
-        if address in ens.address_cache:
-            del ens.address_cache[address]
-
-    delete_caches()
-
-    mainnet = ens.network_manager.ethereum.mainnet
-    mainnet_fork = ens.network_manager.ethereum.get_network("mainnet-fork")
-    polygon_mainnet = ens.network_manager.polygon.mainnet
-
-    mainnet_provider = partial(provider_class, name="mock-mainnet", network=mainnet)
-    mainnet_fork_provider = partial(provider_class, name="mock-mainnet-fork", network=mainnet_fork)
-    polygon_mainnet_provider = partial(
-        provider_class, name="mock-polygon-mainnet", network=polygon_mainnet
-    )
-
-    mainnet.providers["mock-mainnet"] = mainnet_provider
-    mainnet_fork.providers["mock-mainnet-fork"] = mainnet_fork_provider
-    polygon_mainnet.providers["mock-polygon-mainnet"] = polygon_mainnet_provider
-
-    mainnet.set_default_provider("mock-mainnet")
-    mainnet_fork.set_default_provider("mock-mainnet-fork")
-    polygon_mainnet.set_default_provider("mock-polygon-mainnet")
-
-    yield ens
-
-    delete_caches()
-
-
-@pytest.fixture
-def mainnet_provider(converter):
-    _ = converter.is_convertible("test.eth")  # Set mainnet_provider
-    return converter.__dict__["mainnet_provider"]
+    return fn
