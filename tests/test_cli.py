@@ -15,9 +15,14 @@ def runner():
     return CliRunner()
 
 
-def test_resolve(networks, runner):
+def test_resolve(runner):
     result = runner.invoke(cli, ["resolve", "vitalik.eth"])
     assert "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045" in result.output, result.output
+
+
+def test_resolve_invalid_registry_address(runner):
+    result = runner.invoke(cli, ["resolve", "vitalik.eth", "--registry-address", "asdf"])
+    assert result.exit_code != 0
 
 
 def test_name(runner):

@@ -1,4 +1,7 @@
+from typing import Optional
+
 from ape.api import PluginConfig
+from ape.types import AddressType
 
 
 class ENSConfig(PluginConfig):
@@ -18,4 +21,10 @@ class ENSConfig(PluginConfig):
     to Ethereum mainnet to resolve. This is useful for
     performance and in testing environments without access
     to Ethereum mainnet.
+    """
+
+    registry_address: Optional[AddressType] = None
+    """
+    Configure the registry address if it different than the default
+    Ethereum mainnet address.
     """
