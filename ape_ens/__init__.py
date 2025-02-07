@@ -11,7 +11,12 @@ def converters():
 
 
 def __getattr__(name: str):
-    if name == "ENSConversions":
+    if name == "ENS":
+        from ape_ens.ens import ENS
+
+        return ENS
+
+    elif name == "ENSConversions":
         from ape_ens.converter import ENSConversions
 
         return ENSConversions
@@ -19,4 +24,4 @@ def __getattr__(name: str):
     raise AttributeError(name)
 
 
-__all__ = ["ENSConversions"]
+__all__ = ["ENS", "ENSConversions"]

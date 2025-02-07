@@ -1,13 +1,10 @@
-from typing import Any, Optional
+from typing import Any
 
 from ape.api import ConverterAPI
-from ape.exceptions import NetworkError, ProviderError
-from ape.logging import logger
 from ape.types import AddressType
-from ape.utils import cached_property
-from ape_ethereum.provider import Web3Provider
 from web3.exceptions import CannotHandleRequest
-from web3.main import ENS
+
+from ape_ens.ens import ENS
 
 
 class ENSConversions(ConverterAPI):
@@ -15,43 +12,22 @@ class ENSConversions(ConverterAPI):
 
     address_cache: dict[str, AddressType] = {}
 
-    @cached_property
-    def mainnet_provider(self) -> Optional[Web3Provider]:
-        provider = self.network_manager.active_provider
-        if (
-            provider
-            and isinstance(provider, Web3Provider)
-            and provider.network.name in ("mainnet", "mainnet-fork")
-            and provider.network.ecosystem.name == "ethereum"
-        ):
-            return provider
+    def __init__(self, *args, **kwargs) -> None:
+        ens = kwargs.pop("ens", None)
+        super().__init__(*args, **kwargs)
+        self._ens = ens
 
-        # Connect to mainnet for ENS resolution
-        # NOTE: May not work unless the user configures their default mainnet provider.
-        ecosystem = self.network_manager.get_ecosystem("ethereum")
-        mainnet = ecosystem.get_network("mainnet")
-        if not (provider := mainnet.default_provider):
-            return None
+    @property
+    def ens(self) -> ENS:
+        """
+        Ape's wrapper around ENS functionality.
+        """
+        if ens := self._ens:
+            return ens
 
-        elif not isinstance(provider, Web3Provider):
-            logger.warning(
-                "Unable to connect to mainnet provider to "
-                "perform ENS lookup (must be a Web3Provider)"
-            )
-            return None
-
-        if not provider.is_connected:
-            # Connect if needed.
-            try:
-                provider.connect()
-            except ProviderError:
-                logger.warning(
-                    "Unable to connect to mainnet provider to perform ENS lookup. "
-                    "Try changing your default mainnet provider."
-                )
-                return None
-
-        return provider
+        ens = ENS()  # Default behavior.
+        self._ens = ens
+        return ens
 
     def is_convertible(self, value: Any) -> bool:
         if not isinstance(value, str):
@@ -66,44 +42,30 @@ class ENSConversions(ConverterAPI):
         elif value in self.address_cache:
             return True
 
-        else:
-            try:
-                provider = self.mainnet_provider
-                if not provider:
-                    return False
+        elif not (ens := self.ens):
+            return False
 
-                elif not (ens := provider.web3.ens):
-                    return False
+        try:
+            address = ens.resolve(value)
+        except CannotHandleRequest:
+            # Either this is not actually mainnet or our head is
+            # pointed before ENS existed.
+            return False
 
-                try:
-                    address = ens.address(value)
-                except CannotHandleRequest:
-                    # Either this is not actually mainnet or our head is
-                    # pointed before ENS existed.
-                    return False
+        if address is None:
+            return False
 
-                if address is not None:
-                    self.address_cache[value] = address
-                    return True
-
-                return False
-
-            except (NetworkError, ProviderError):
-                return False
+        self.address_cache[value] = address
+        return True
 
     def convert(self, value: str) -> AddressType:
         if value in self.address_cache:
+            # It will also be cached if `.is_convertible()` called.
             return self.address_cache[value]
 
-        elif not (provider := self.mainnet_provider):
-            # Should never get here.
+        elif not (ens := self.ens):
             raise ValueError(f"Unable to convert ENS value '{value}'.")
 
-        # TODO: Switch to using ENS SDK
-        if not (ens := provider.web3.ens):
-            # Should never get here.
-            raise ValueError(f"Unable to convert ENS value '{value}'.")
-
-        address = ens.address(value)
+        address = ens.resolve(value)
         self.address_cache[value] = address
         return address

@@ -28,60 +28,101 @@ python3 setup.py install
 
 ## Quick Usage
 
-The ENS plugin requires a mainnet connection to resolve ENS names because ENS contracts are only deployed to mainnet.
-Thus, the first thing you should do is ensure you have configured a mainnet provider.
-For example, if you use `infura` or `alchemy`, install the associated plugin:
+Ensure you are satisfied with your Ethereum mainnet setup in Ape, as this plugin requires a connection to Ethereum to resolve ENS domains.
+More information on networks can be found in [Ape's network guide](https://docs.apeworx.io/ape/stable/userguides/networks.html#networks).
 
-```bash
-ape plugins install infura
-```
+If using Ape and not connected to mainnet, `ape-ens` will temporarily connect to Ethereum mainnet to resolve addresses, using your default mainnet provider.
 
-Afterwards, you should see it in the output of the `list` command:
-
-```bash
-$ ape plugins list
-
-Installed Plugins:
-  infura      0.4.0
-  ...
-```
-
-After your provider plugin of choice is installed, configure it to be your default mainnet provider in your `ape-config.yaml` file:
+To configure a default mainnet provider, do:
 
 ```yaml
 ethereum:
   mainnet:
-    default_provider: infura
+    default_provider: alchemy  # Example, you can use any mainnet provider
 ```
 
-Finally, you can start the ape console using any network of your choice:
+Otherwise, the plugin should still work with Ape's defaults, using an RPC from the `evmchains` library.
 
-```bash
-ape console --network :rinkeby:infura
-```
+This plugin contains two primary features:
 
-Then, convert an `ens` domain to an `AddressType`:
+- A conversion API implementation: this allows you to use ENS values in contract calls and transaction kwargs.
+- a CLI for interacting with ENS from the command line.
+
+### Conversion API
+
+When this plugin is installed, you can use ENS names in contract-calls, and they resolve to the addresses automatically:
 
 ```python
-In [1]: from ape.types import AddressType
-In [2]: convert("vitalik.eth", AddressType)
-Out[2]: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
+from ape import accounts, Contract
+
+ens_name = "vitalik.eth"  # Going to use this later...
+contract = Contract("0x123...")
+me = accounts.load("me")
+
+# Ape resolves "me" to my account's address and "vitalik.eth" to Vitalik's Ethereum address.
+# It is thanks to the ape-ens plugin that "vitalik.eth" works as a transaction input.
+contract.transferFrom(me, ens_name, 100, sender=me)
 ```
 
-Get the Ethereum Name Service (ENS) namehash using the `namehash` function:
+You can use Ape's conversion utility directly:
+
+```python
+from ape import convert
+from ape.types import AddressType
+
+convert("vitalik.eth", AddressType)
+# returns: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
+```
+
+Additionally, you can get the Ethereum Name Service (ENS) namehash using the `namehash` function:
 
 ```py
 from ape_ens.utils import namehash
-# or
-# from ape_ens.utils.namehash import namehash
->> namehash("eth").hex()
-"0x93cdeb708b7545dc668eb9280176169d1c33cfd8ed6f04690a0bcc88a93fc4ae"
 
->> namehash("foo.eth")
-HexBytes("0xde9b09fd7c5f901e23a3f19fecc54828e9c848539801e86591bd9801b019f84f")
-
->> namehash("ape.rocks.eth").hex()
-"0x6294e43e29c5c1573554a68e6ff302fa867ab0d56b800f623c1abb77609d2b8d"
+namehash("foo.eth")
+# HexBytes("0xde9b09fd7c5f901e23a3f19fecc54828e9c848539801e86591bd9801b019f84f")
 ```
 
-The ENS plugin temporarily connects to mainnet, caches the address resolution, and then your original network uses the result.
+### CLI
+
+`ape-ens` comes with a CLI for using ENS.
+
+Resolve ENS domains from the command line:
+
+```shell
+ape ens resolve vitalik.eth
+# outputs: 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045
+```
+
+Reverse-lookup an ENS domain:
+
+```shell
+ape ens name 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045
+# outputs: vitalik.eth
+```
+
+Get the owner of an ENS domain:
+
+```shell
+ape ens owner vitalik.eth
+# outputs: 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045
+```
+
+Get the namehash of an ENS name:
+
+```shell
+ape ens namehash foo.eth
+# outputs: 0xde9b09fd7c5f901e23a3f19fecc54828e9c848539801e86591bd9801b019f84f
+```
+
+### Using `ape-ens` as a library.
+
+You can also use the `ape_ens.ENS` class directly for programmatically referring to ENS.
+
+```python
+from ape_ens import ENS
+
+ens = ENS()
+vitalik = ens.resolve("vitalik.eth")
+print(vitalik)
+```
