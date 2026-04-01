@@ -23,12 +23,12 @@ def __getattr__(name: str):
 
         return ENS
 
-    elif name == "ENSConfig":
+    if name == "ENSConfig":
         from ape_ens.config import ENSConfig
 
         return ENSConfig
 
-    elif name == "ENSConversions":
+    if name == "ENSConversions":
         from ape_ens.converter import ENSConversions
 
         return ENSConversions
