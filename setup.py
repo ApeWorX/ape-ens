@@ -69,7 +69,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "eth-ape>=0.8.25,<0.9",
-        "web3>=6.20.1,<8",
+        "web3>=7.16.0,<8",
     ],
     entry_points={
         "ape_cli_subcommands": [

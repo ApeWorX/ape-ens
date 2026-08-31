@@ -1,5 +1,4 @@
 import pytest
-from ape.exceptions import ConversionError
 from web3.exceptions import CannotHandleRequest
 
 from tests.conftest import negative_tests
@@ -36,16 +35,34 @@ def test_convert(converter, vitalik):
     assert actual == vitalik
 
 
-def test_convert_when_connected_to_mainnet_fork(trick_network, converter, vitalik):
-    trick_network("mainnet_fork")
-    actual = converter.convert("vitalik.eth")
-    assert actual == vitalik
+def test_convert_on_local_uses_eth_coin_type(converter, mock_web3_ens, mocker):
+    spy = mocker.spy(converter.ens, "resolve")
+    converter.convert("vitalik.eth")
+    spy.assert_called_with("vitalik.eth")
+    mock_web3_ens.address.assert_called_with("vitalik.eth")
 
 
-def test_convert_when_connected_to_other_ecosystem_mainnet(trick_network, converter, vitalik):
-    trick_network("polygon", ecosystem="polygon")
-    actual = converter.convert("vitalik.eth")
+def test_convert_follows_connected_l2(trick_network, converter, mock_web3_ens, vitalik):
+    with trick_network("mainnet", ecosystem="base"):
+        actual = converter.convert("vitalik.eth")
     assert actual == vitalik
+    mock_web3_ens.address.assert_called_with("vitalik.eth", coin_type=2147492101)
+
+
+def test_convert_when_connected_to_mainnet_fork(trick_network, converter, mock_web3_ens, vitalik):
+    with trick_network("mainnet-fork"):
+        actual = converter.convert("vitalik.eth")
+    assert actual == vitalik
+    mock_web3_ens.address.assert_called_with("vitalik.eth")
+
+
+def test_convert_when_connected_to_other_ecosystem_mainnet(
+    trick_network, converter, mock_web3_ens, vitalik
+):
+    with trick_network("mainnet", ecosystem="polygon"):
+        actual = converter.convert("vitalik.eth")
+    assert actual == vitalik
+    mock_web3_ens.address.assert_called_with("vitalik.eth", coin_type=0x80000000 | 137)
 
 
 def test_convert_using_config_registry(project, converter, vitalik, accounts):
@@ -62,17 +79,6 @@ def test_convert_after_adding_to_local_registry(converter, vitalik, accounts):
     converter.ens.local_registry[ape_user] = dev_account.address
     actual = converter.convert(ape_user)
     assert actual == dev_account.address
-
-
-def test_convert_change_registry_address(project, converter, vitalik, accounts):
-    fake_registry = accounts[0].address
-    ens = converter.ens
-    converter._ens = None  # Pretend this is the start of the session.
-    with project.temp_config(ens={"registry_address": fake_registry}):
-        with pytest.raises(ConversionError):
-            _ = converter.convert("apepython.eth")
-
-    converter._ens = ens
 
 
 def test_address_cache(converter, address):

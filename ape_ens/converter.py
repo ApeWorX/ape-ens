@@ -48,6 +48,8 @@ class ENSConversions(ConverterAPI):
 
     def convert(self, value: str) -> "AddressType":
         try:
+            # Follows the connected Ape network (ENSIP-19): chain record, then
+            # default EVM (0x80000000). Ethereum L1 and local stay coin type 60.
             return self.ens.resolve(value)
         except Exception as err:
             raise ConversionError(str(err)) from err

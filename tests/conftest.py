@@ -34,7 +34,7 @@ def vitalik():
 def mock_web3_ens(mocker):
     web3_ens = mocker.MagicMock()
 
-    def get_address(name):
+    def get_address(name, coin_type=None):
         return REGISTRY.get(name)
 
     def get_name(address):
@@ -45,6 +45,7 @@ def mock_web3_ens(mocker):
     web3_ens.address.side_effect = get_address
     web3_ens.name.side_effect = get_name
     web3_ens.owner.side_effect = get_address
+    web3_ens.get_text.return_value = ""
     return web3_ens
 
 
