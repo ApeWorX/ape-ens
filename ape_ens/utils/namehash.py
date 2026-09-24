@@ -28,10 +28,7 @@ def _manual_namehash(name: str, encoding=None) -> HexBytes:
     node = b"\x00" * 32
     if name:
         if encoding is None:
-            if is_bytes(name):
-                encoded_name = name
-            else:
-                encoded_name = codecs.encode(name, "utf8")  # type: ignore
+            encoded_name = name if is_bytes(name) else codecs.encode(name, "utf8")  # type: ignore
         else:
             encoded_name = codecs.encode(name, encoding)
 
