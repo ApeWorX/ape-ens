@@ -1,4 +1,3 @@
-
 from ape.api import PluginConfig
 from ape.types import AddressType
 

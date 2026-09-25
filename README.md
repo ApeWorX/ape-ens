@@ -201,8 +201,8 @@ ens:
 Configuring entries is useful for:
 
 1. Testing in the `local` network.
-2. Attaining faster performance (no Ethereum call).
-3. Avoiding connecting to Ethereum mainnet.
+1. Attaining faster performance (no Ethereum call).
+1. Avoiding connecting to Ethereum mainnet.
 
 ### Change Registry
 
