@@ -158,6 +158,9 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
+"ape_ens/ens.py" = ["N811"]
+"ape_ens/*.py" = ["N811"]
+"ape_ens/**/*.py" = ["N811"]
 "__init__.py" = ["F401", "E402"]
 "version.py" = ["T201"]
 "exceptions.py" = ["N818"]
