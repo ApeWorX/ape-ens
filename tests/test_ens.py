@@ -59,7 +59,7 @@ def test_resolve_l2_falls_back_to_default_evm(ens, mock_web3_ens, address):
 
 
 def test_resolve_l2_does_not_fall_back_to_eth(ens, mock_web3_ens):
-    mock_web3_ens.address.side_effect = lambda name, coin_type=None: None
+    mock_web3_ens.address.side_effect = lambda *_args, **_kwargs: None
     actual = ens.resolve("vitalik.eth", coin_type=BASE_COIN_TYPE, use_cache=False)
     assert actual is None
     assert mock_web3_ens.address.call_count == 2

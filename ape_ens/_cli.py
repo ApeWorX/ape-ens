@@ -31,7 +31,7 @@ def cli():
 def registry_address_option(**kwargs):
     if "callback" not in kwargs:
 
-        def validate_address(ctx, param, value):
+        def validate_address(_ctx, _param, value):
             if value is None:
                 return value
 
@@ -39,10 +39,10 @@ def registry_address_option(**kwargs):
 
             try:
                 return convert(value, AddressType)
-            except ConversionError:
+            except ConversionError as err:
                 raise click.BadOptionUsage(
                     "--registry-address", f"Invalid `--registry-address` {value}."
-                )
+                ) from err
 
         kwargs["callback"] = validate_address
 

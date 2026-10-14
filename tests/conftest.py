@@ -1,21 +1,23 @@
 from contextlib import contextmanager
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import pytest
-from ape.types import AddressType
 
 from ape_ens.converter import ENSConversions
 from ape_ens.ens import ENS
 
-ADDRESS = cast(AddressType, "0xe2222bb6633228143C4Ce8fC4642aa33b857B332")
+if TYPE_CHECKING:
+    from ape.types import AddressType
+
+ADDRESS = cast("AddressType", "0xe2222bb6633228143C4Ce8fC4642aa33b857B332")
 negative_tests = pytest.mark.parametrize(
     "value",
-    (
+    [
         "test",
         ADDRESS,
         23452345,
         "0x07D75c30f0217c99BD0bbeA00806E9d5D7E8EFA33b5852694A5bAf3D8141d432",
-    ),
+    ],
 )
 REGISTRY = {"test.eth": ADDRESS, "vitalik.eth": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"}
 
@@ -41,6 +43,7 @@ def mock_web3_ens(mocker):
         for name, value in REGISTRY.items():
             if value == address:
                 return name
+        return None
 
     web3_ens.address.side_effect = get_address
     web3_ens.name.side_effect = get_name

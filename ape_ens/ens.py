@@ -142,10 +142,9 @@ class ENS(ManagerAccessMixin):
         if registry_address:
             return Web3ENS.from_web3(self._mainnet_provider.web3, registry_address)
 
-        else:
-            # Check config.
-            if address := self.config.registry_address:
-                return Web3ENS.from_web3(self._mainnet_provider.web3, address)
+        # Check config.
+        if address := self.config.registry_address:
+            return Web3ENS.from_web3(self._mainnet_provider.web3, address)
 
         # Use default (most common).
         return self._mainnet_provider.web3.ens
@@ -157,7 +156,7 @@ class ENS(ManagerAccessMixin):
         return self._web3_ens
 
     @staticmethod
-    def _cache_key(name: str, coin_type: Optional[int] = None) -> str:
+    def _cache_key(name: str, coin_type: int | None = None) -> str:
         # ENSIP-9: 60 is ETH, the same as omitting coin_type.
         if coin_type in (None, 60):
             return name
@@ -188,11 +187,11 @@ class ENS(ManagerAccessMixin):
     def resolve(
         self,
         name: str,
-        use_cache: Optional[bool] = None,
+        use_cache: bool | None = None,
         registry_address: Optional["AddressType"] = None,
-        coin_type: Optional[int] = None,
-        ecosystem: Optional[str] = None,
-        network: Optional[str] = None,
+        coin_type: int | None = None,
+        ecosystem: str | None = None,
+        network: str | None = None,
     ) -> Optional["AddressType"]:
         """
         Resolve an ENS name.
@@ -275,7 +274,7 @@ class ENS(ManagerAccessMixin):
 
         return address
 
-    def _coin_type_from_connected_network(self) -> Optional[int]:
+    def _coin_type_from_connected_network(self) -> int | None:
         provider = self.network_manager.active_provider
         if provider is None:
             return None
@@ -291,8 +290,8 @@ class ENS(ManagerAccessMixin):
 
     def _coin_type_from_ape_network(
         self,
-        ecosystem: Optional[str] = None,
-        network: Optional[str] = None,
+        ecosystem: str | None = None,
+        network: str | None = None,
     ) -> int:
         eco_name, net_name = self._parse_ape_network(ecosystem, network)
         eco = self._ape_ecosystem(eco_name)
@@ -324,8 +323,8 @@ class ENS(ManagerAccessMixin):
 
     def _parse_ape_network(
         self,
-        ecosystem: Optional[str],
-        network: Optional[str],
+        ecosystem: str | None,
+        network: str | None,
     ) -> tuple[str, str]:
         if ecosystem is not None:
             eco = self._ape_ecosystem(ecosystem)
@@ -337,7 +336,7 @@ class ENS(ManagerAccessMixin):
         if choice := self._parse_network_choice(network):
             return choice
 
-        matched_eco: Optional["EcosystemAPI"] = None
+        matched_eco: EcosystemAPI | None = None
         try:
             matched_eco = self.network_manager.get_ecosystem(network)
         except NetworkError:
@@ -359,7 +358,7 @@ class ENS(ManagerAccessMixin):
         raise UnknownNetworkError(f"Unknown Ape ecosystem or network {network!r}.")
 
     @staticmethod
-    def _parse_network_choice(network: str) -> Optional[tuple[str, str]]:
+    def _parse_network_choice(network: str) -> tuple[str, str] | None:
         """Split ``ecosystem:network`` or ``ecosystem:network:provider``.
 
         The provider segment is ignored; coin type does not use an RPC.
@@ -411,7 +410,7 @@ class ENS(ManagerAccessMixin):
 
     def name(
         self, address: "AddressType", registry_address: Optional["AddressType"] = None
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Reverse look-up an address to get the ENS name.
 
@@ -447,7 +446,7 @@ class ENS(ManagerAccessMixin):
         name: str,
         key: str,
         registry_address: Optional["AddressType"] = None,
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Get a text record for an ENS name.
 

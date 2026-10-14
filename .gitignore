@@ -122,3 +122,5 @@ version.py
 *.swo
 
 .build/*
+
+uv.lock
