@@ -28,6 +28,8 @@ requires-python = ">=3.10"
 dependencies = [
     'eth-ape>=0.8.25,<0.9',
     'web3>=6.20.1,<8',
+    # web3/ens passes a list to pyunormalize.NFC; pyunormalize>=17 requires a str (.isascii).
+    'pyunormalize>=15.0.0,<17',
 ]
 dynamic = ["version"]
 
